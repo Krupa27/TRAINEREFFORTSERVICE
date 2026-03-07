@@ -69,14 +69,14 @@
 	</dependencyManagement>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<mainClass>com.example.trainereffort.TrainerEffortApplication</mainClass>
-				</configuration>
-			</plugin>
-		</plugins>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <mainClass>com.example.TrainerEffort.TrainerEffortApplication</mainClass>
+            </configuration>
+        </plugin>
+    </plugins>
 	</build>
 </project>
