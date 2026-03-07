@@ -1,28 +1,32 @@
-# Use the stable Eclipse Temurin JDK 17 on Ubuntu (Jammy)
-FROM eclipse-temurin:17-jdk-jammy
-
-# Set the working directory inside the container
+# Step 1: Use a stable JDK 17 base image
+FROM eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /app
 
-# Copy the Maven wrapper and project file first to cache dependencies
+# Step 2: Copy Maven configuration first (for better caching)
 COPY mvnw pom.xml ./
 COPY .mvn .mvn
-
-# Give execution rights and download dependencies (offline mode for speed)
 RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline -B
 
-# Copy the actual source code
+# Step 3: Copy the source code (now that it's back in src/)
 COPY src ./src
 
-# Build the application and skip tests for faster deployment
-RUN ./mvnw package -DskipTests
+# Optional: Debug step to verify the structure in logs if it fails
+RUN ls -R src
 
-# Move the generated JAR to a standard name so the CMD always works
-RUN cp target/*.jar app.jar
+# Step 4: Build the application
+# We use the clean flag to ensure no old artifacts interfere
+RUN ./mvnw clean package -DskipTests
 
-# Expose the port used in your application.properties
+# Step 5: Final Production Image
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+
+# Copy the built JAR from the build stage
+# Using a wildcard to match whatever name is in your pom.xml
+COPY --from=build /app/target/*.jar app.jar
+
+# Step 6: Expose the port from application.properties
 EXPOSE 8085
 
-# Start the application
+# Step 7: Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
